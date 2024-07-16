@@ -61,7 +61,11 @@ struct OrtVitisAIEpAPI {
     // this dll is already linked to the executable, normally a test program
     handle_ = reinterpret_cast<void*>(GetModuleHandle(TEXT("onnxruntime_vitisai_ep.dll")));
     if (!handle_) {
-      auto full_path = env.GetRuntimePath() + PathString(LIBRARY_PREFIX ORT_TSTR("onnxruntime_vitisai_ep") LIBRARY_EXTENSION);
+      auto buffer_raw = std::vector<PathChar>(MAX_PATH);
+      auto buffer = gsl::make_span(buffer_raw);
+      const auto size = env.GetRuntimePath(buffer);
+      buffer = buffer.first(size);
+      auto full_path = PathString{buffer.data()} + PathString(LIBRARY_PREFIX ORT_TSTR("onnxruntime_vitisai_ep") LIBRARY_EXTENSION);
       ORT_THROW_IF_ERROR(env.LoadDynamicLibrary(full_path, true, &handle_));
     }
 #else

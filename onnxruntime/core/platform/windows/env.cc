@@ -678,6 +678,31 @@ PathString WindowsEnv::GetRuntimePath() const {
   return path.substr(0, slash_index + 1);
 }
 
+/* Added by ASG : Nigel knox
+  Duplicate function that writes the string into a buffer allocated by the caller.
+  This makes it safe to call from another DLL (it allocates no memory)
+*/
+std::size_t WindowsEnv::GetRuntimePath(gsl::span<PathChar> buffer) const { 
+  std::fill(buffer.begin(), buffer.end(), PathChar{0});
+  DWORD size = gsl::narrow_cast<DWORD>(buffer.size());
+  if (!(size = GetModuleFileNameW(reinterpret_cast<HINSTANCE>(&__ImageBase), buffer.data(), size))) {
+    return 0;
+  }
+  buffer.first(size);
+  // Remove the filename at the end, but keep the trailing slash
+  auto slash_index = std::find(buffer.rbegin(), buffer.rend(), ORT_TSTR('\\'));
+  if (slash_index == buffer.rend()) {
+    // Windows supports forward slashes
+    slash_index = std::find(buffer.rbegin(), buffer.rend(), ORT_TSTR('/'));
+    if (slash_index == buffer.rend()) {
+      return 0;
+    }
+  }
+  const auto new_size = buffer.size() - std::distance(buffer.rbegin(), slash_index);
+  buffer[new_size] = 0;
+  return new_size;
+}
+
 Status WindowsEnv::LoadDynamicLibrary(const PathString& wlibrary_filename, bool /*global_symbols*/, void** handle) const {
 #if WINAPI_FAMILY == WINAPI_FAMILY_PC_APP
   *handle = ::LoadPackagedLibrary(wlibrary_filename.c_str(), 0);

@@ -245,6 +245,7 @@ class Env {
   // Used to help load other shared libraries that live in the same folder as the core code, for example
   // The DNNL provider shared library. Without this path, the module won't be found on windows in all cases.
   virtual PathString GetRuntimePath() const { return PathString(); }
+  virtual std::size_t GetRuntimePath(gsl::span<PathChar>) const { return 0; }
 
   // \brief Get a pointer to a symbol from a dynamic library.
   //

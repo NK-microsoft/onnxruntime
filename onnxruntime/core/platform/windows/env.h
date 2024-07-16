@@ -77,6 +77,7 @@ class WindowsEnv : public Env {
   common::Status FileClose(int fd) const override;
   common::Status GetCanonicalPath(const PathString& path, PathString& canonical_path) const override;
   PathString GetRuntimePath() const override;
+  std::size_t GetRuntimePath(gsl::span<PathChar>) const override;
   Status LoadDynamicLibrary(const PathString& library_filename, bool /*global_symbols*/, void** handle) const override;
   Status UnloadDynamicLibrary(void* handle) const override;
   Status GetSymbolFromLibrary(void* handle, const std::string& symbol_name, void** symbol) const override;
