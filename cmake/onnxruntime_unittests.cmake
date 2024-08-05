@@ -274,6 +274,8 @@ if(NOT onnxruntime_MINIMAL_BUILD AND NOT onnxruntime_REDUCED_OPS_BUILD)
     "${TEST_SRC_DIR}/optimizer/*.cc"
     "${TEST_SRC_DIR}/optimizer/*.h"
     )
+  set_source_files_properties("${TEST_SRC_DIR}/optimizer/graph_transform_test.cc"
+                              PROPERTIES COMPILE_FLAGS $<$<PLATFORM_ID:Windows>:"/bigobj">)
 
   set(onnxruntime_test_framework_src_patterns
     "${TEST_SRC_DIR}/framework/*.cc"
@@ -322,6 +324,9 @@ file(GLOB onnxruntime_test_training_src
   "${ORTTRAINING_SOURCE_DIR}/test/distributed/*.h"
   "${ORTTRAINING_SOURCE_DIR}/test/distributed/*.cc"
   )
+
+set_source_files_properties("${ORTTRAINING_SOURCE_DIR}/test/optimizer/graph_transform_test.cc"
+                            PROPERTIES COMPILE_FLAGS $<$<PLATFORM_ID:Windows>:"/bigobj">)
 
 # TODO (baijumeswani): Remove the minimal build check here.
 #                      The training api tests should be runnable even on a minimal build.

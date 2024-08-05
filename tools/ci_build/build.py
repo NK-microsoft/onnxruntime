@@ -311,6 +311,10 @@ def parse_arguments():
         help="Extra definitions to pass to CMake during build system "
         "generation. These are just CMake -D options without the leading -D.",
     )
+    parser.add_argument(
+        "--cmake_extra_options",
+        help="Raw compiler options to add to the script-built CMAKE_C/CXX_FLAGS.",
+    )
     parser.add_argument("--target", help="Build a specific target, e.g. winml_dll")
     # This flag is needed when :
     # 1. The OS is 64 bits Windows
@@ -1520,7 +1524,7 @@ def generate_build_tree(
                 ]
 
     for config in configs:
-        cflags = []
+        cflags = [str(args.cmake_extra_options)]
         cxxflags = None
         ldflags = None
         cudaflags = []
@@ -1648,6 +1652,9 @@ def generate_build_tree(
             )
         preinstalled_dir = Path(build_dir) / config
         temp_cmake_args = cmake_args.copy()
+        print(f'------------------------ FLAGS -------------------------------------------------------')
+        print(f'cflags:{cflags}')
+        print(f'cxxflags:{cxxflags}')
         if cflags is not None and cxxflags is not None and len(cflags) != 0 and len(cxxflags) != 0:
             temp_cmake_args += [
                 "-DCMAKE_C_FLAGS={}".format(" ".join(cflags)),
